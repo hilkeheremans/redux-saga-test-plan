@@ -25,7 +25,7 @@ export default function validateEffects(
 
   const effectsDifferent =
     (isHelperEffect && !bothEqual) ||
-    (!isHelperEffect && (!actual[effectKey] || !expected[effectKey]));
+    (!isHelperEffect && (actual.type !== expected.type));
 
   if (effectsDifferent) {
     return createErrorMessage(

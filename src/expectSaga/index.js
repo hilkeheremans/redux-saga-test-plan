@@ -1,12 +1,13 @@
 // @flow
 /* eslint-disable no-underscore-dangle */
-import { effects, runSaga, stdChannel, utils } from 'redux-saga';
+import { runSaga, stdChannel, utils } from 'redux-saga';
 import { all, call, fork, race, spawn } from 'redux-saga/effects';
-import {
-  takeEveryHelper,
-  takeLatestHelper,
-  takeLeadingHelper,
-} from 'redux-saga/lib/internal/sagaHelpers';
+import * as effects from 'redux-saga/effects'
+// import {
+//   takeEveryHelper,
+//   takeLatestHelper,
+//   takeLeadingHelper,
+// } from 'redux-saga/lib/internal/sagaHelpers';
 import assign from 'object-assign';
 import { splitAt } from '../utils/array';
 import Map from '../utils/Map';
@@ -44,7 +45,8 @@ import {
   TAKE,
 } from '../shared/keys';
 
-const { asEffect, is } = utils;
+import * as effectCheckers from '../shared/checkers'
+import * as is from '@redux-saga/is'
 
 const INIT_ACTION = { type: '@@redux-saga-test-plan/INIT' };
 const defaultSagaWrapper = createSagaWrapper();
@@ -54,11 +56,12 @@ function extractState(reducer: Reducer, initialState?: any): any {
 }
 
 function isHelper(fn: Function): boolean {
+  if (!fn) return false
   return (
-    fn === takeEveryHelper ||
-    fn === takeLatestHelper ||
-    fn === takeLeadingHelper
-  );
+      fn.name === 'takeEveryHelper' ||
+    fn.name === 'takeLatestHelper' ||
+    fn.name === 'takeLeadingHelper'
+);
 }
 
 function toJSON(object: mixed): mixed {
@@ -171,7 +174,6 @@ export default function expectSaga(
     const parsedEffect = parseEffect(value);
     const localProviders = providers || {};
     const { type, effect } = parsedEffect;
-
     switch (true) {
       case type === RACE && !localProviders.race:
         processEffect({
@@ -487,36 +489,36 @@ export default function expectSaga(
     actionChannel: createEffectTesterFromEffects(
       'actionChannel',
       ACTION_CHANNEL,
-      asEffect.actionChannel,
+      effectCheckers.isActionChannelEffect
     ),
-    apply: createEffectTesterFromEffects('apply', CALL, asEffect.call),
-    call: createEffectTesterFromEffects('call', CALL, asEffect.call),
-    cps: createEffectTesterFromEffects('cps', CPS, asEffect.cps),
-    fork: createEffectTesterFromEffects('fork', FORK, asEffect.fork),
+    apply: createEffectTesterFromEffects('apply', CALL, effectCheckers.isCallEffect),
+    call: createEffectTesterFromEffects('call', CALL, effectCheckers.isCallEffect),
+    cps: createEffectTesterFromEffects('cps', CPS, effectCheckers.isCpsEffect),
+    fork: createEffectTesterFromEffects('fork', FORK, effectCheckers.isForkEffect),
     getContext: createEffectTesterFromEffects(
       'getContext',
       GET_CONTEXT,
-      asEffect.getContext,
+      effectCheckers.isGetContextEffect,
     ),
-    put: createEffectTesterFromEffects('put', PUT, asEffect.put),
-    putResolve: createEffectTesterFromEffects('putResolve', PUT, asEffect.put),
-    race: createEffectTesterFromEffects('race', RACE, asEffect.race),
-    select: createEffectTesterFromEffects('select', SELECT, asEffect.select),
-    spawn: createEffectTesterFromEffects('spawn', FORK, asEffect.fork),
+    put: createEffectTesterFromEffects('put', PUT, effectCheckers.isPutEffect),
+    putResolve: createEffectTesterFromEffects('putResolve', PUT, effectCheckers.isPutEffect),
+    race: createEffectTesterFromEffects('race', RACE, effectCheckers.isRaceEffect),
+    select: createEffectTesterFromEffects('select', SELECT, effectCheckers.isSelectEffect),
+    spawn: createEffectTesterFromEffects('spawn', FORK, effectCheckers.isForkEffect),
     setContext: createEffectTesterFromEffects(
       'setContext',
       SET_CONTEXT,
-      asEffect.setContext,
+      effectCheckers.isSetContextEffect,
     ),
-    take: createEffectTesterFromEffects('take', TAKE, asEffect.take),
-    takeMaybe: createEffectTesterFromEffects('takeMaybe', TAKE, asEffect.take),
+    take: createEffectTesterFromEffects('take', TAKE, effectCheckers.isTakeEffect),
+    takeMaybe: createEffectTesterFromEffects('takeMaybe', TAKE, effectCheckers.isTakeEffect),
   };
 
   api.actionChannel.like = createEffectTester(
     'actionChannel',
     ACTION_CHANNEL,
     effects.actionChannel,
-    asEffect.actionChannel,
+    effectCheckers.isActionChannelEffect,
     true,
   );
   api.actionChannel.pattern = pattern => api.actionChannel.like({ pattern });
@@ -525,7 +527,7 @@ export default function expectSaga(
     'apply',
     CALL,
     effects.apply,
-    asEffect.call,
+    effectCheckers.isCallEffect,
     true,
   );
   api.apply.fn = fn => api.apply.like({ fn });
@@ -534,7 +536,7 @@ export default function expectSaga(
     'call',
     CALL,
     effects.call,
-    asEffect.call,
+    effectCheckers.isCallEffect,
     true,
   );
   api.call.fn = fn => api.call.like({ fn });
@@ -543,7 +545,7 @@ export default function expectSaga(
     'cps',
     CPS,
     effects.cps,
-    asEffect.cps,
+    effectCheckers.isCpsEffect,
     true,
   );
   api.cps.fn = fn => api.cps.like({ fn });
@@ -552,7 +554,7 @@ export default function expectSaga(
     'fork',
     FORK,
     effects.fork,
-    asEffect.fork,
+    effectCheckers.isForkEffect,
     true,
   );
   api.fork.fn = fn => api.fork.like({ fn });
@@ -561,7 +563,7 @@ export default function expectSaga(
     'put',
     PUT,
     effects.put,
-    asEffect.put,
+    effectCheckers.isPutEffect,
     true,
   );
   api.put.actionType = type => api.put.like({ action: { type } });
@@ -570,7 +572,7 @@ export default function expectSaga(
     'putResolve',
     PUT,
     effects.putResolve,
-    asEffect.put,
+    effectCheckers.isPutEffect,
     true,
   );
   api.putResolve.actionType = type => api.putResolve.like({ action: { type } });
@@ -579,7 +581,7 @@ export default function expectSaga(
     'select',
     SELECT,
     effects.select,
-    asEffect.select,
+    effectCheckers.isSelectEffect,
     true,
   );
   api.select.selector = selector => api.select.like({ selector });
@@ -588,7 +590,7 @@ export default function expectSaga(
     'spawn',
     FORK,
     effects.spawn,
-    asEffect.fork,
+    effectCheckers.isForkEffect,
     true,
   );
   api.spawn.fn = fn => api.spawn.like({ fn });
@@ -627,10 +629,8 @@ export default function expectSaga(
 
   function start(): ExpectApi {
     const sagaWrapper = createSagaWrapper(generator.name);
-
     isRunning = true;
     iterator = generator(...sagaArgs);
-
     mainTask = runSaga(
       io,
       sagaWrapper,
@@ -638,13 +638,11 @@ export default function expectSaga(
       refineYieldedValue,
       setReturnValue,
     );
-
     mainTaskPromise = taskPromise(mainTask)
       .then(checkExpectations)
       // Pass along the error instead of rethrowing or allowing to
       // bubble up to avoid PromiseRejectionHandledWarning
       .catch(identity);
-
     return api;
   }
 
@@ -775,6 +773,7 @@ export default function expectSaga(
     storeKey: string,
     extractEffect: Function,
   ): Function {
+    console.log('createtest for', effectName, effects)
     return createEffectTester(
       effectName,
       storeKey,

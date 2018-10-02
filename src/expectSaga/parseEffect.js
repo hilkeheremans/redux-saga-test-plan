@@ -1,6 +1,6 @@
 // @flow
 /* eslint-disable no-cond-assign */
-import { utils } from 'redux-saga';
+import { effectTypes } from 'redux-saga';
 
 import {
   ACTION_CHANNEL,
@@ -21,9 +21,10 @@ import {
   TAKE,
 } from '../shared/keys';
 
-import { mapValues } from '../utils/object';
+import * as effectCheckers from '../shared/checkers'
 
-const { asEffect, is } = utils;
+import { mapValues } from '../utils/object';
+import * as is from '@redux-saga/is'
 
 const createEffectWithNestedEffects = type => (effect, extra) => ({
   type,
@@ -39,103 +40,102 @@ const createRace = createEffectWithNestedEffects(RACE);
 
 export default function parseEffect(effect: Object): Object {
   let parsedEffect;
-
   switch (true) {
-    case is.notUndef((parsedEffect = asEffect.take(effect))):
+    case is.notUndef((parsedEffect = effectCheckers.isTakeEffect(effect))):
       return {
         type: TAKE,
         effect: parsedEffect,
         providerKey: 'take',
       };
 
-    case is.notUndef((parsedEffect = asEffect.put(effect))):
+    case is.notUndef((parsedEffect = effectCheckers.isPutEffect(effect))):
       return {
         type: PUT,
         effect: parsedEffect,
         providerKey: 'put',
       };
 
-    case is.notUndef((parsedEffect = asEffect.race(effect))):
+    case is.notUndef((parsedEffect = effectCheckers.isRaceEffect(effect))):
       return createRace(parsedEffect, { providerKey: 'race' });
 
-    case is.notUndef((parsedEffect = asEffect.call(effect))):
+    case is.notUndef((parsedEffect = effectCheckers.isCallEffect(effect))):
       return {
         type: CALL,
         effect: parsedEffect,
         providerKey: 'call',
       };
 
-    case is.notUndef((parsedEffect = asEffect.cancel(effect))):
+    case is.notUndef((parsedEffect = effectCheckers.isCancelEffect(effect))):
       return {
         type: CANCEL,
         effect: parsedEffect,
         providerKey: 'cancel',
       };
 
-    case is.notUndef((parsedEffect = asEffect.cancelled(effect))):
+    case is.notUndef((parsedEffect = effectCheckers.isCancelledEffect(effect))):
       return {
         type: CANCELLED,
         effect: parsedEffect,
         providerKey: 'cancelled',
       };
 
-    case is.notUndef((parsedEffect = asEffect.cps(effect))):
+    case is.notUndef((parsedEffect = effectCheckers.isCpsEffect(effect))):
       return {
         type: CPS,
         effect: parsedEffect,
         providerKey: 'cps',
       };
 
-    case is.notUndef((parsedEffect = asEffect.flush(effect))):
+    case is.notUndef((parsedEffect = effectCheckers.isFlushEffect(effect))):
       return {
         type: FLUSH,
         effect: parsedEffect,
         providerKey: 'flush',
       };
 
-    case is.notUndef((parsedEffect = asEffect.fork(effect))):
+    case is.notUndef((parsedEffect = effectCheckers.isForkEffect(effect))):
       return {
         type: FORK,
         effect: parsedEffect,
         providerKey: parsedEffect.detached ? 'spawn' : 'fork',
       };
 
-    case is.notUndef((parsedEffect = asEffect.getContext(effect))):
+    case is.notUndef((parsedEffect = effectCheckers.isGetContextEffect(effect))):
       return {
         type: GET_CONTEXT,
         effect: parsedEffect,
         providerKey: 'getContext',
       };
 
-    case is.notUndef((parsedEffect = asEffect.join(effect))):
+    case is.notUndef((parsedEffect = effectCheckers.isJoinEffect(effect))):
       return {
         type: JOIN,
         effect: parsedEffect,
         providerKey: 'join',
       };
 
-    case is.notUndef((parsedEffect = asEffect.select(effect))):
+    case is.notUndef((parsedEffect = effectCheckers.isSelectEffect(effect))):
       return {
         type: SELECT,
         effect: parsedEffect,
         providerKey: 'select',
       };
 
-    case is.notUndef((parsedEffect = asEffect.setContext(effect))):
+    case is.notUndef((parsedEffect = effectCheckers.isGetContextEffect(effect))):
       return {
         type: SET_CONTEXT,
         effect: parsedEffect,
         providerKey: 'setContext',
       };
 
-    case is.notUndef((parsedEffect = asEffect.actionChannel(effect))):
+    case is.notUndef((parsedEffect = effectCheckers.isActionChannelEffect(effect))):
       return {
         type: ACTION_CHANNEL,
         effect: parsedEffect,
         providerKey: 'actionChannel',
       };
 
-    case is.notUndef((parsedEffect = asEffect.all(effect))):
+    case is.notUndef((parsedEffect = effectCheckers.isAllEffect(effect))):
       return createAll(parsedEffect);
 
     default:

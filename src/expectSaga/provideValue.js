@@ -19,8 +19,7 @@ import {
   SET_CONTEXT,
   TAKE,
 } from '../shared/keys';
-
-const { asEffect } = utils;
+import { isForkEffect, effectCheckers } from '../shared/checkers';
 
 export const NEXT = Object.create(null);
 export const next = () => NEXT;
@@ -40,7 +39,7 @@ export const handlers = {
   [CPS]: 'cps',
   [FLUSH]: 'flush',
   [FORK](providers, value) {
-    const effect = asEffect.fork(value);
+    const effect = isForkEffect(value)
 
     if (providers.fork && !effect.detached) {
       return providers.fork(effect, next);
@@ -67,7 +66,8 @@ export function provideValue(providers: Providers, value: Object) {
     const handler = handlers[effectType];
 
     if (typeof handler === 'string' && handler in providers) {
-      const effect = asEffect[handler](value);
+      const effect = effectCheckers[handler](value);
+
       return providers[handler](effect, next);
     }
 
