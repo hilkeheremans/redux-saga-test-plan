@@ -345,10 +345,12 @@ export default function expectSaga(
   }
 
   function notifyListeners(action: Action): void {
+    console.log('notifying listeners', action)
     ioChannel.put(action);
   }
 
   function dispatch(action: Action): any {
+    console.log('dispatching', action)
     if (typeof action._delayTime === 'number') {
       const { _delayTime } = action;
 
@@ -367,9 +369,11 @@ export default function expectSaga(
   }
 
   function getDispatchableActions(effect: Object): Array<Action> {
+    console.log('channel!!', effect)
     const pattern = effect.pattern || channelsToPatterns.get(effect.channel);
+    console.log('HELLOOOO', effect)
     const index = findDispatchableActionIndex(queuedActions, pattern);
-
+    console.log('queued', queuedActions, pattern)
     if (index > -1) {
       const actions = queuedActions.splice(0, index + 1);
       return actions;
@@ -387,7 +391,6 @@ export default function expectSaga(
     }
 
     const effectStore = effectStores[parsedEffect.type];
-
     if (!effectStore) {
       return;
     }
@@ -403,8 +406,8 @@ export default function expectSaga(
 
       case TAKE: {
         const actions = getDispatchableActions(parsedEffect.effect);
-
         const [reducerActions, [sagaAction]] = splitAt(actions, -1);
+        console.log('actions found for take', parsedEffect, actions, reducerActions, sagaAction)
 
         reducerActions.forEach(action => {
           dispatch(action);
@@ -603,6 +606,7 @@ export default function expectSaga(
 
   function apiDispatch(action: Action): ExpectApi {
     let dispatchableAction;
+    console.log('dispatch', action, isRunning)
 
     if (typeof delayTime === 'number') {
       dispatchableAction = assign({}, action, {
@@ -748,8 +752,8 @@ export default function expectSaga(
     like: boolean = false,
   ): Function {
     return (...args: mixed[]) => {
+      console.log('storekey', storeKey, like, effectStores)
       const expectedEffect = like ? args[0] : effectCreator(...args);
-
       addExpectation(
         createEffectExpectation({
           effectName,
@@ -773,7 +777,6 @@ export default function expectSaga(
     storeKey: string,
     extractEffect: Function,
   ): Function {
-    console.log('createtest for', effectName, effects)
     return createEffectTester(
       effectName,
       storeKey,

@@ -37,8 +37,10 @@ export function createEffectExpectation({
     const deleted = like
       ? store.deleteBy(item => isMatch(extractEffect(item), expectedEffect))
       : store.delete(expectedEffect);
-
+    console.log('store', store, expectedEffect)
     let errorMessage = '';
+
+    console.log('hhh', deleted, expected)
 
     if (deleted && !expected) {
       const serializedEffect = serializeEffect(expectedEffect, storeKey);
@@ -48,7 +50,7 @@ export function createEffectExpectation({
         `\n\nNot Expected\n------------\n${serializedEffect}\n`;
     } else if (!deleted && expected) {
       const serializedEffect = serializeEffect(expectedEffect, storeKey);
-
+      console.log('actual', effectName)
       errorMessage =
         `\n${effectName} expectation unmet:` +
         `\n\nExpected\n--------\n${serializedEffect}\n`;

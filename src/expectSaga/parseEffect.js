@@ -39,19 +39,20 @@ const createAll = createEffectWithNestedEffects(ALL);
 const createRace = createEffectWithNestedEffects(RACE);
 
 export default function parseEffect(effect: Object): Object {
+  // console.log('parsing effect:', effect)
   let parsedEffect;
   switch (true) {
     case is.notUndef((parsedEffect = effectCheckers.isTakeEffect(effect))):
       return {
         type: TAKE,
-        effect: parsedEffect,
+        effect: effect.payload,
         providerKey: 'take',
       };
 
     case is.notUndef((parsedEffect = effectCheckers.isPutEffect(effect))):
       return {
         type: PUT,
-        effect: parsedEffect,
+        effect: effect.payload,
         providerKey: 'put',
       };
 
@@ -61,77 +62,77 @@ export default function parseEffect(effect: Object): Object {
     case is.notUndef((parsedEffect = effectCheckers.isCallEffect(effect))):
       return {
         type: CALL,
-        effect: parsedEffect,
+        effect: effect.payload,
         providerKey: 'call',
       };
 
     case is.notUndef((parsedEffect = effectCheckers.isCancelEffect(effect))):
       return {
         type: CANCEL,
-        effect: parsedEffect,
+        effect: effect.payload,
         providerKey: 'cancel',
       };
 
     case is.notUndef((parsedEffect = effectCheckers.isCancelledEffect(effect))):
       return {
         type: CANCELLED,
-        effect: parsedEffect,
+        effect: effect.payload,
         providerKey: 'cancelled',
       };
 
     case is.notUndef((parsedEffect = effectCheckers.isCpsEffect(effect))):
       return {
         type: CPS,
-        effect: parsedEffect,
+        effect: effect.payload,
         providerKey: 'cps',
       };
 
     case is.notUndef((parsedEffect = effectCheckers.isFlushEffect(effect))):
       return {
         type: FLUSH,
-        effect: parsedEffect,
+        effect: effect.payload,
         providerKey: 'flush',
       };
 
     case is.notUndef((parsedEffect = effectCheckers.isForkEffect(effect))):
       return {
         type: FORK,
-        effect: parsedEffect,
+        effect: effect.payload,
         providerKey: parsedEffect.detached ? 'spawn' : 'fork',
       };
 
     case is.notUndef((parsedEffect = effectCheckers.isGetContextEffect(effect))):
       return {
         type: GET_CONTEXT,
-        effect: parsedEffect,
+        effect: effect.payload,
         providerKey: 'getContext',
       };
 
     case is.notUndef((parsedEffect = effectCheckers.isJoinEffect(effect))):
       return {
         type: JOIN,
-        effect: parsedEffect,
+        effect: effect.payload,
         providerKey: 'join',
       };
 
     case is.notUndef((parsedEffect = effectCheckers.isSelectEffect(effect))):
       return {
         type: SELECT,
-        effect: parsedEffect,
+        effect: effect.payload,
         providerKey: 'select',
       };
 
     case is.notUndef((parsedEffect = effectCheckers.isGetContextEffect(effect))):
       return {
         type: SET_CONTEXT,
-        effect: parsedEffect,
+        effect: effect.payload,
         providerKey: 'setContext',
       };
 
     case is.notUndef((parsedEffect = effectCheckers.isActionChannelEffect(effect))):
       return {
         type: ACTION_CHANNEL,
-        effect: parsedEffect,
+        effect: effect.payload,
         providerKey: 'actionChannel',
       };
 
